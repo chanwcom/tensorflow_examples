@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
 """A very simple MNIST classifier.
 See extensive documentation at
 https://www.tensorflow.org/get_started/mnist/beginners
