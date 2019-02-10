@@ -45,8 +45,10 @@ class RNNLM(object):
 
         def parse(line):
             line_split = tf.string_split([line])
-            input_seq = tf.string_to_number(line_split.values[:-1], out_type=tf.int32)
-            output_seq = tf.string_to_number(line_split.values[1:], out_type=tf.int32)
+            input_seq = tf.string_to_number(
+                line_split.values[:-1], out_type=tf.int32)
+            output_seq = tf.string_to_number(
+                line_split.values[1:], out_type=tf.int32)
             return input_seq, output_seq
 
         training_dataset = (
@@ -84,13 +86,12 @@ class RNNLM(object):
         self.cell = cell
 
         # Output embedding
-        self.output_embedding_mat = tf.get_variable("output_embedding_mat",
-                                                    [self.vocab_size, self.num_hidden_units],
-                                                    dtype=tf.float32)
+        self.output_embedding_mat = tf.get_variable(
+            "output_embedding_mat", [self.vocab_size, self.num_hidden_units],
+            dtype=tf.float32)
 
-        self.output_embedding_bias = tf.get_variable("output_embedding_bias",
-                                                     [self.vocab_size],
-                                                     dtype=tf.float32)
+        self.output_embedding_bias = tf.get_variable(
+            "output_embedding_bias", [self.vocab_size], dtype=tf.float32)
 
         non_zero_weights = tf.sign(self.input_batch)
         self.valid_words = tf.reduce_sum(non_zero_weights)
