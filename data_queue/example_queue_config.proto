@@ -1,0 +1,97 @@
+syntax = "proto2";
+
+package speech;
+
+// A proto message for configuration for feature extraction.
+// TODO(chanw.com) Think about moving FeatExtConfig to a directory directly
+// related to feature extraction.
+message FeatExtConfig {
+  // The types of features. 
+  //
+  // For detailed information about each feature, refer to the following file:
+  // //speech/trainer/tools/extract_feature.py.
+  enum FeatureType {
+    // The power coefficient of 1.0/15.0 is applied to the mel filterbank
+    // coefficients.
+    POWER_MEL_FILTERBANK= 0;
+
+    // DCT is applied to the power mel filterbank coefficients.
+    PCC = 1;
+
+    // Mel filter bank coefficients. Non-linearities are not applied.
+    MEL_FILTERBANK = 2;
+
+    // Log mel filterbank coefficients.
+    LOG_MEL_FILTERBANK = 3;
+
+    // Gammatone filterbank coefficients. Non-linearities are not applied.
+    GAMMATONE_FILTERBANK = 4;
+
+  } 
+
+  // enum feature type.
+  optional FeatureType feature_type = 1;
+
+  // The frame size (the window size) in seconds.
+  optional double frame_size_sec = 2 [default = 0.025];
+
+  // The period between successive frames.
+  optional double frame_step_sec = 3 [default = 0.01];
+
+  // The size of the feature.
+  optional int32 feature_size = 4 [default = 40];
+
+  // The log floor value. When log-mel or MFCC is used, this floor value is
+  // used before applying the logarithm.
+  optional double log_floor = 5 [default = 1e-10];
+}
+
+// A protocol buffer message for configuration an ExampleQueue class.
+message Config {
+  // The name of sharded tfrecord file.
+  //
+  // The name may contain wild card characters. The following is an example:
+  // /vol1/dbstore/sr_spl/speech_database/librispeech/librispeech_train-other-500-*-00010
+  optional string tfrecord_file_name = 1;
+
+  // A batch size.
+  optional int32 batch_size = 2 [default = 1];
+
+  // The name of a function for parsing each element in TFRecord.
+  //
+  // TODO(chanw.com) Implements and adds a default parse function.
+  optional string parse_function_name = 3;
+
+  // A flag for randomizing ordering when data is read.
+  //
+  // If True, then randomization is done in the following two steps:
+  // 1. Among sharded TFRecords, the one to be read is randomly selected.
+  //
+  // 2. Using the following shuffle_buffer_size field, shuffling is done.
+  optional bool randomize_order = 4 [default = true];
+
+  // The size of buffer for shuffling. If not set, then shuffling is not done.
+  //
+  // This dataset fills a buffer with shuffle_buffer_size elements, then
+  // randomly samples elements from this buffer, replacing the selected elements
+  // with new elements. For perfect shuffling, a buffer size greater than or
+  // equal to the full size of the dataset is required.
+  optional int32 shuffle_buffer_size = 5 [default = 256];
+
+  // Number of parallel function calls.
+  //
+  // TODO(chanw.com) Adds description looking at lvingo and tensorflow website.
+  optional int32 num_parallel_calls = 6 [default = 1];
+
+  // The maximum length of utterance in seconds to be retrieved.
+  //
+  // When ExampleQueue reads data, only examples containing utterances whose
+  // length is equal to or less than this max_utterance_length_filter_sec field
+  // is retrieved. 
+  optional double max_utterance_length_filter_sec = 7 [default = inf];
+
+  // The configuration for feature extraction.
+  //
+  // If this field is not set, then feature extraction is bypassed.
+  optional FeatExtConfig feature_ext_config = 8;
+}

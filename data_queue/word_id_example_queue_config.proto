@@ -1,0 +1,49 @@
+syntax = "proto2";
+
+package speech;
+
+// A protocol buffer message for configuration an WordIDExampleQueue class.
+message WordIdExampleQueueConfig {
+  // TODO(chanw.com) Think about how to combine with tfrecord_file_name in 
+  // ExampleQueue.
+  optional string file_name = 1;
+
+  // A batch size.
+  optional int32 batch_size = 2 [default = 1];
+
+  // The name of a function for parsing each element in TFRecord.
+  //
+  // TODO(chanw.com) Implements and adds a default parse function.
+  optional string parse_function_name = 3;
+
+  // A flag for randomizing ordering when data is read.
+  //
+  // If True, then randomization is done in the following two steps:
+  // 1. Among sharded TFRecords, the one to be read is randomly selected.
+  //
+  // 2. Using the following shuffle_buffer_size field, shuffling is done.
+  optional bool randomize_order = 4 [default = true];
+
+  // The size of buffer for shuffling. If not set, then shuffling is not done.
+  //
+  // This dataset fills a buffer with shuffle_buffer_size elements, then
+  // randomly samples elements from this buffer, replacing the selected elements
+  // with new elements. For perfect shuffling, a buffer size greater than or
+  // equal to the full size of the dataset is required.
+  optional int32 shuffle_buffer_size = 5 [default = 256];
+
+  // Number of parallel function calls.
+  //
+  // TODO(chanw.com) Adds description looking at lvingo and tensorflow website.
+  optional int32 num_parallel_calls = 6 [default = 1];
+
+ 
+  // The output format will be compatible with the Keras fit input.
+  //
+  // It has the format of (inputs, targets). The dimension of "inputs" is
+  // (B x (L - 1)) were B is the number of examples in a batch and L is the
+  // sequence length. The "inputs" contain word IDs. The dimension of "targets"
+  // is the same as "inputs" (B x (L - 1)). The targets contain one-sample
+  // ahead future samples.
+  optional bool fit_input_format = 7 [default = true]; 
+}
